@@ -1,0 +1,9 @@
+.Container {
+  & + div {
+    margin-left: 1.625rem;
+  }
+
+  span {
+    margin-left: .5rem;
+  }
+}
