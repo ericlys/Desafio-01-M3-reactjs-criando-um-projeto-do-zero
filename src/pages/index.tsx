@@ -1,11 +1,14 @@
 import { GetStaticProps } from 'next';
 import Head from 'next/head';
+import Prismic from '@prismicio/client';
+import { useState } from 'react';
 import Info from '../components/Info';
 
 import { getPrismicClient } from '../services/prismic';
 
 import commonStyles from '../styles/common.module.scss';
 import styles from './home.module.scss';
+import { formatDate } from '../shared/date';
 
 interface Post {
   uid?: string;
@@ -26,7 +29,40 @@ interface HomeProps {
   postsPagination: PostPagination;
 }
 
-export default function Home(): JSX.Element {
+function formatResult(result: Post[]): Post[] {
+  return result.map(post => {
+    return {
+      uid: post.uid,
+      first_publication_date: formatDate(post.first_publication_date),
+      data: {
+        title: post.data.title,
+        subtitle: post.data.subtitle,
+        author: post.data.author,
+      },
+    };
+  });
+}
+
+export default function Home({ postsPagination }: HomeProps): JSX.Element {
+  const [posts, setPosts] = useState(postsPagination.results);
+  const [nextPage, setNextPage] = useState(postsPagination.next_page);
+  const [loadingPost, setLoadingPost] = useState(false);
+
+  const handleLoadMorePosts = (): void => {
+    setLoadingPost(true);
+    fetch(nextPage)
+      .then(result => result.json())
+      .then(response => {
+        setPosts([...posts, ...formatResult(response.results)]);
+        setNextPage(response.next_page);
+        setLoadingPost(false);
+      })
+      .catch(err => {
+        setLoadingPost(false);
+        alert(`Error fetching more posts: ${err.message}`);
+      });
+  };
+
   return (
     <>
       <Head>
@@ -35,49 +71,50 @@ export default function Home(): JSX.Element {
 
       <main className={commonStyles.container}>
         <div className={styles.posts}>
-          <a>
-            <strong>titulo teste</strong>
-            <p>Subtitulo de teste que vai ser pego do prismic</p>
-            <div>
-              <Info icon="calendar" text="12/12/2021" />
-              <Info icon="user" text="Autor teste" />
-            </div>
-          </a>
-          <a>
-            <strong>titulo teste</strong>
-            <p>Subtitulo de teste que vai ser pego do prismic</p>
-            <div>
-              <Info icon="calendar" text="12/12/2021" />
-              <Info icon="user" text="Autor teste" />
-            </div>
-          </a>
-          <a>
-            <strong>titulo teste</strong>
-            <p>Subtitulo de teste que vai ser pego do prismic</p>
-            <div>
-              <Info icon="calendar" text="12/12/2021" />
-              <Info icon="user" text="Autor teste" />
-            </div>
-          </a>
-          <a>
-            <strong>titulo teste</strong>
-            <p>Subtitulo de teste que vai ser pego do prismic</p>
-            <div>
-              <Info icon="calendar" text="12/12/2021" />
-              <Info icon="user" text="Autor teste" />
-            </div>
-          </a>
-
-          <button type="button">Carregar mais posts</button>
+          {posts.map(post => (
+            <a key={post.uid}>
+              <strong>{post.data.title}</strong>
+              <p>{post.data.subtitle}</p>
+              <div>
+                <Info icon="calendar" text={post.first_publication_date} />
+                <Info icon="user" text={post.data.author} />
+              </div>
+            </a>
+          ))}
+          {nextPage && (
+            <button
+              disabled={loadingPost}
+              type="button"
+              onClick={handleLoadMorePosts}
+            >
+              {loadingPost ? 'Carregando...' : 'Carregar mais posts'}
+            </button>
+          )}
         </div>
       </main>
     </>
   );
 }
 
-// export const getStaticProps = async () => {
-//   // const prismic = getPrismicClient();
-//   // const postsResponse = await prismic.query(TODO);
+export const getStaticProps: GetStaticProps = async () => {
+  const prismic = getPrismicClient();
+  const postsResponse = await prismic.query(
+    [Prismic.predicates.at('document.type', 'posts')],
+    {
+      fetch: ['post.title', 'post.subtitle', 'post.author'],
+      pageSize: 1,
+    }
+  );
 
-//   // TODO
-// };
+  const posts: Post[] = formatResult(postsResponse.results);
+
+  return {
+    revalidate: 60 * 60,
+    props: {
+      postsPagination: {
+        results: posts,
+        next_page: postsResponse.next_page,
+      },
+    },
+  };
+};
