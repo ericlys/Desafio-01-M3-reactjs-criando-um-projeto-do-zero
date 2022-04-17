@@ -1,1 +1,38 @@
-// TODO
+.banner{
+  width: 100%;
+  max-height: 20rem;
+  object-fit: cover;
+}
+
+.post {
+  max-width: 720px;
+  margin: 5rem auto;
+
+  h1 {
+    font-size: 3.625rem;
+    font-weight: 700;
+    color: var(--white);
+  }
+}
+
+.infos {
+  display: flex;
+  margin-top: 1.5rem;
+}
+
+.postContent{
+  font-size: 1.125rem;
+  text-align: justify;
+  line-height: 1.575rem;
+  
+  h2 {
+    font-size: 2.25rem;
+    font-weight: bold;
+    color: var(--white);
+    margin: 4rem 0 3rem 0;
+  }
+  
+  p, li{
+    margin-top: 1.5rem;
+  }
+}

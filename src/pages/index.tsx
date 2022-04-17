@@ -2,6 +2,7 @@ import { GetStaticProps } from 'next';
 import Head from 'next/head';
 import Prismic from '@prismicio/client';
 import { useState } from 'react';
+import Link from 'next/link';
 import Info from '../components/Info';
 
 import { getPrismicClient } from '../services/prismic';
@@ -66,20 +67,22 @@ export default function Home({ postsPagination }: HomeProps): JSX.Element {
   return (
     <>
       <Head>
-        <title>Home | posts</title>
+        <title>spacetraveling | home</title>
       </Head>
 
       <main className={commonStyles.container}>
         <div className={styles.posts}>
           {posts.map(post => (
-            <a key={post.uid}>
-              <strong>{post.data.title}</strong>
-              <p>{post.data.subtitle}</p>
-              <div>
-                <Info icon="calendar" text={post.first_publication_date} />
-                <Info icon="user" text={post.data.author} />
-              </div>
-            </a>
+            <Link key={post.uid} href={`/post/${post.uid}`}>
+              <a>
+                <strong>{post.data.title}</strong>
+                <p>{post.data.subtitle}</p>
+                <div>
+                  <Info icon="calendar" text={post.first_publication_date} />
+                  <Info icon="user" text={post.data.author} />
+                </div>
+              </a>
+            </Link>
           ))}
           {nextPage && (
             <button
