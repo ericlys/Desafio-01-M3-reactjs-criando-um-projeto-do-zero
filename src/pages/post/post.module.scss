@@ -21,18 +21,25 @@
 }
 
 .postContent{
+  margin-top: 4rem;
   font-size: 1.125rem;
   text-align: justify;
-  line-height: 1.575rem;
   
   h2 {
     font-size: 2.25rem;
     font-weight: bold;
     color: var(--white);
-    margin: 4rem 0 3rem 0;
+    margin-bottom: 3rem;
   }
   
   p, li{
+    line-height: 1.575rem;
     margin-top: 1.5rem;
   }
+}
+
+.loading {
+  color: var(--pink-600);
+  font-weight: 600;
+  font-size: 1.125rem;
 }

@@ -34,7 +34,7 @@ function formatResult(result: Post[]): Post[] {
   return result.map(post => {
     return {
       uid: post.uid,
-      first_publication_date: formatDate(post.first_publication_date),
+      first_publication_date: post.first_publication_date,
       data: {
         title: post.data.title,
         subtitle: post.data.subtitle,
@@ -78,7 +78,10 @@ export default function Home({ postsPagination }: HomeProps): JSX.Element {
                 <strong>{post.data.title}</strong>
                 <p>{post.data.subtitle}</p>
                 <div>
-                  <Info icon="calendar" text={post.first_publication_date} />
+                  <Info
+                    icon="calendar"
+                    text={formatDate(post.first_publication_date)}
+                  />
                   <Info icon="user" text={post.data.author} />
                 </div>
               </a>
